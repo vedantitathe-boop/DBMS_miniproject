@@ -16,11 +16,12 @@
 <div class="table-wrap">
 <table>
   <tr>
-    <th>ID</th><th>Device</th><th>Category</th><th>Condition</th>
+    <th>Photo</th><th>ID</th><th>Device</th><th>Category</th><th>Condition</th>
     <th>Type</th><th>Seller</th><th>Price</th><th>Your offer</th>
   </tr>
   {% for l in listings %}
   <tr>
+    <td>{% if l.image_path %}<img class="thumb" src="{{ url_for('static', filename=l.image_path) }}" alt="{{ l.brand }} {{ l.model_name }}">{% else %}<span class="noimg">No photo</span>{% endif %}</td>
     <td>{{ l.listing_id }}</td>
     <td>{{ l.brand }} {{ l.model_name }}</td>
     <td>{{ l.device_category }}</td>
@@ -40,7 +41,7 @@
     </td>
   </tr>
   {% else %}
-  <tr><td colspan="8" class="empty">No approved listings in this category yet.</td></tr>
+  <tr><td colspan="9" class="empty">No approved listings in this category yet.</td></tr>
   {% endfor %}
 </table>
 </div>

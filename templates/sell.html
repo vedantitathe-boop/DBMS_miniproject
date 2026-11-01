@@ -2,7 +2,7 @@
 {% block content %}
 <h2>Sell a device</h2>
 <div class="card">
-  <form method="post" class="form-grid">
+  <form method="post" enctype="multipart/form-data" class="form-grid">
     <label class="full">Model
       <select name="model_id" required>
         <option value="">Choose a model</option>
@@ -28,6 +28,9 @@
     <label class="full">Description (optional)
       <input name="description">
     </label>
+    <label class="full">Photo of the device (JPG, PNG or WEBP, max 5 MB)
+      <input name="image" type="file" accept="image/jpeg,image/png,image/webp">
+    </label>
     <div class="full"><button>Submit for approval</button></div>
   </form>
 </div>
@@ -35,9 +38,10 @@
 <h3>My listings</h3>
 <div class="table-wrap">
 <table>
-  <tr><th>ID</th><th>Device</th><th>Price</th><th>Status</th><th>Admin note</th></tr>
+  <tr><th>Photo</th><th>ID</th><th>Device</th><th>Price</th><th>Status</th><th>Admin note</th></tr>
   {% for l in mine %}
   <tr>
+    <td>{% if l.image_path %}<img class="thumb" src="{{ url_for('static', filename=l.image_path) }}" alt="">{% else %}<span class="noimg">No photo</span>{% endif %}</td>
     <td>{{ l.listing_id }}</td>
     <td>{{ l.brand }} {{ l.model_name }}</td>
     <td>₹{{ l.asking_price }}</td>
@@ -45,7 +49,7 @@
     <td>{{ l.rejection_reason or '' }}</td>
   </tr>
   {% else %}
-  <tr><td colspan="5" class="empty">You have not listed anything yet. Use the form above to add your first device.</td></tr>
+  <tr><td colspan="6" class="empty">You have not listed anything yet. Use the form above to add your first device.</td></tr>
   {% endfor %}
 </table>
 </div>

@@ -174,3 +174,22 @@ td form { gap: 8px; }
 .badge.sentforrecycling   { background: var(--blue-bg);  color: var(--blue); }
 .badge.recycled           { background: var(--green-bg); color: var(--green); }
 pre.sql { background: #14211f; color: #e6f2ef; padding: 14px; border-radius: 8px; overflow-x: auto; font-size: .88rem; line-height: 1.5; }
+
+.thumb { width: 72px; height: 72px; object-fit: cover; border-radius: 8px; border: 1px solid var(--line); display: block; }
+.noimg { color: var(--muted); font-size: .85rem; }
+.action-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: 20px;
+  margin-top: 28px;
+}
+.action-card {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 28px 24px;
+  border-top: 5px solid var(--brand);
+}
+.action-card h3 { margin-top: 0; font-size: 1.35rem; }
+.action-card p { color: var(--muted); margin: 0 0 24px; }
+.action-card .btn { margin-top: auto; padding: 14px 18px; }

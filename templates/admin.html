@@ -4,11 +4,12 @@
 <div class="table-wrap">
 <table>
   <tr>
-    <th>ID</th><th>Device</th><th>Seller</th><th>Condition</th>
+    <th>Photo</th><th>ID</th><th>Device</th><th>Seller</th><th>Condition</th>
     <th>Asking</th><th>Estimated</th><th>Price check</th><th>Decision</th>
   </tr>
   {% for p in pending %}
   <tr>
+    <td>{% if p.image_path %}<img class="thumb" src="{{ url_for('static', filename=p.image_path) }}" alt="">{% else %}<span class="noimg">No photo</span>{% endif %}</td>
     <td>{{ p.listing_id }}</td>
     <td>{{ p.brand }} {{ p.model_name }}</td>
     <td>{{ p.seller }}</td>
@@ -27,7 +28,7 @@
     </td>
   </tr>
   {% else %}
-  <tr><td colspan="8" class="empty">Nothing is waiting for review.</td></tr>
+  <tr><td colspan="9" class="empty">Nothing is waiting for review.</td></tr>
   {% endfor %}
 </table>
 </div>

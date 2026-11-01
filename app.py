@@ -11,6 +11,30 @@ from queries import DEMO_QUERIES
 load_dotenv()
 app = Flask(__name__)
 app.secret_key = os.getenv('SECRET_KEY')
+import uuid
+
+UPLOAD_DIR = os.path.join(app.root_path, 'static', 'uploads')
+ALLOWED_IMAGES = {'jpg', 'jpeg', 'png', 'webp'}
+app.config['MAX_CONTENT_LENGTH'] = 5 * 1024 * 1024      # 5 MB limit
+os.makedirs(UPLOAD_DIR, exist_ok=True)
+
+
+def save_image(file):
+    """Save an uploaded image and return the path to store in the database."""
+    if not file or not file.filename:
+        return None
+    ext = file.filename.rsplit('.', 1)[-1].lower() if '.' in file.filename else ''
+    if ext not in ALLOWED_IMAGES:
+        raise ValueError('Only JPG, PNG or WEBP images are allowed.')
+    name = uuid.uuid4().hex + '.' + ext          # unique name, avoids clashes
+    file.save(os.path.join(UPLOAD_DIR, name))
+    return 'uploads/' + name
+
+
+@app.errorhandler(413)
+def image_too_large(e):
+    flash('That image is too large. The maximum size is 5 MB.')
+    return redirect(url_for('sell'))
 def login_required(f):
     @wraps(f)
     def wrapper(*args, **kwargs):
@@ -78,10 +102,15 @@ def logout():
 @login_required
 def sell():
     if request.method == 'POST':
+        try:
+            image_path = save_image(request.files.get('image'))
+        except ValueError as e:
+            flash(str(e))
+            return redirect(url_for('sell'))
+
         conn = get_db()
         try:
             cur = conn.cursor()
-            # 1. register the physical device
             cur.execute(
                 'INSERT INTO Devices (owner_id, model_id, device_condition, years_used, description) '
                 'VALUES (%s, %s, %s, %s, %s)',
@@ -89,15 +118,17 @@ def sell():
                  request.form['device_condition'], request.form['years_used'],
                  request.form['description'].strip() or None))
             device_id = cur.lastrowid
-            # 2. create its listing; it starts as Pending until an admin approves it
             cur.execute(
-                'INSERT INTO Listings (device_id, listing_type, asking_price) '
-                'VALUES (%s, %s, %s)',
-                (device_id, request.form['listing_type'], request.form['asking_price']))
-            conn.commit()          # both inserts saved together
+                'INSERT INTO Listings (device_id, listing_type, asking_price, image_path) '
+                'VALUES (%s, %s, %s, %s)',
+                (device_id, request.form['listing_type'],
+                 request.form['asking_price'], image_path))
+            conn.commit()
             flash('Listing submitted. It will appear after admin approval.')
         except mysql.connector.Error as e:
-            conn.rollback()        # neither insert is saved
+            conn.rollback()
+            if image_path:       # do not leave an unused file behind
+                os.remove(os.path.join(app.root_path, 'static', image_path))
             flash('Could not save the listing: ' + str(e))
         finally:
             conn.close()
@@ -107,19 +138,20 @@ def sell():
                        'ORDER BY brand, model_name')
     mine = fetch_all(
         'SELECT L.listing_id, DM.brand, DM.model_name, L.asking_price, '
-        '       L.listing_status, L.rejection_reason '
+        '       L.listing_status, L.rejection_reason, L.image_path '
         'FROM Listings L '
         'JOIN Devices D ON L.device_id = D.device_id '
         'JOIN DeviceModels DM ON D.model_id = DM.model_id '
         'WHERE D.owner_id = %s ORDER BY L.listing_id DESC', (session['user_id'],))
     return render_template('sell.html', models=models, mine=mine)
+
 @app.route('/admin')
 @admin_required
 def admin():
     pending = fetch_all(
         'SELECT P.listing_id, P.brand, P.model_name, P.asking_price, '
         '       P.estimated_value, P.price_flag, U.full_name AS seller, '
-        '       D.device_condition, D.years_used '
+        '       D.device_condition, D.years_used, L.image_path '
         'FROM PriceCheck P '
         'JOIN Listings L ON P.listing_id = L.listing_id '
         'JOIN Devices D ON L.device_id = D.device_id '
