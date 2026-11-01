@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>Buy a device</h2>
+
+<form method="get" class="filters">
+  <label>Category
+    <select name="category" onchange="this.form.submit()">
+      <option value="">All categories</option>
+      {% for c in categories %}
+        <option value="{{ c.device_category }}" {% if c.device_category == selected %}selected{% endif %}>{{ c.device_category }}</option>
+      {% endfor %}
+    </select>
+  </label>
+</form>
+
+<div class="table-wrap">
+<table>
+  <tr>
+    <th>ID</th><th>Device</th><th>Category</th><th>Condition</th>
+    <th>Type</th><th>Seller</th><th>Price</th><th>Your offer</th>
+  </tr>
+  {% for l in listings %}
+  <tr>
+    <td>{{ l.listing_id }}</td>
+    <td>{{ l.brand }} {{ l.model_name }}</td>
+    <td>{{ l.device_category }}</td>
+    <td>{{ l.device_condition }}, {{ l.years_used }} yrs</td>
+    <td>{{ l.listing_type }}</td>
+    <td>{{ l.seller }}</td>
+    <td>₹{{ l.asking_price }}</td>
+    <td>
+      {% if l.owner_id == session.user_id %}
+        Your listing
+      {% else %}
+      <form method="post" action="{{ url_for('request_purchase', listing_id=l.listing_id) }}" style="max-width:none">
+        <input name="offer" type="number" min="1" value="{{ l.asking_price|int }}" required>
+        <button>Request to buy</button>
+      </form>
+      {% endif %}
+    </td>
+  </tr>
+  {% else %}
+  <tr><td colspan="8" class="empty">No approved listings in this category yet.</td></tr>
+  {% endfor %}
+</table>
+</div>
+{% endblock %}

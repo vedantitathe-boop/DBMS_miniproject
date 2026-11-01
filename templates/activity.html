@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>Requests on my listings</h2>
+<div class="table-wrap">
+<table>
+  <tr><th>Request</th><th>Device</th><th>Buyer</th><th>Asking</th><th>Offer</th><th>Status</th><th>Decision</th></tr>
+  {% for r in incoming %}
+  <tr>
+    <td>{{ r.transaction_id }}</td>
+    <td>{{ r.brand }} {{ r.model_name }}</td>
+    <td>{{ r.buyer }}</td>
+    <td>₹{{ r.asking_price }}</td>
+    <td>₹{{ r.final_price }}</td>
+    <td><span class="badge {{ r.transaction_status|lower }}">{{ r.transaction_status }}</span></td>
+    <td>
+      {% if r.transaction_status == 'Requested' %}
+      <div class="row-actions">
+        <form method="post" action="{{ url_for('accept_request', transaction_id=r.transaction_id) }}"><button>Accept</button></form>
+        <form method="post" action="{{ url_for('decline_request', transaction_id=r.transaction_id) }}"><button class="light">Decline</button></form>
+      </div>
+      {% endif %}
+    </td>
+  </tr>
+  {% else %}
+  <tr><td colspan="7" class="empty">No one has asked to buy your devices yet.</td></tr>
+  {% endfor %}
+</table>
+</div>
+
+<h3>My purchase requests</h3>
+<div class="table-wrap">
+<table>
+  <tr><th>Request</th><th>Device</th><th>Seller</th><th>My offer</th><th>Status</th></tr>
+  {% for r in outgoing %}
+  <tr>
+    <td>{{ r.transaction_id }}</td>
+    <td>{{ r.brand }} {{ r.model_name }}</td>
+    <td>{{ r.seller }}</td>
+    <td>₹{{ r.final_price }}</td>
+    <td><span class="badge {{ r.transaction_status|lower }}">{{ r.transaction_status }}</span></td>
+  </tr>
+  {% else %}
+  <tr><td colspan="5" class="empty">You have not requested anything yet. Browse the Buy page to find a device.</td></tr>
+  {% endfor %}
+</table>
+</div>
+{% endblock %}

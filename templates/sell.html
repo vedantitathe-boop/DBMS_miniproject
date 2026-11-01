@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>Sell a device</h2>
+<div class="card">
+  <form method="post" class="form-grid">
+    <label class="full">Model
+      <select name="model_id" required>
+        <option value="">Choose a model</option>
+        {% for m in models %}
+          <option value="{{ m.model_id }}">{{ m.brand }} {{ m.model_name }}</option>
+        {% endfor %}
+      </select>
+    </label>
+    <label>Condition
+      <select name="device_condition">
+        <option>Working</option><option>Damaged</option><option>Not Working</option>
+      </select>
+    </label>
+    <label>Years used
+      <input name="years_used" type="number" step="0.5" min="0" required>
+    </label>
+    <label>Listing type
+      <select name="listing_type"><option>Used</option><option>Refurbished</option></select>
+    </label>
+    <label>Asking price (₹)
+      <input name="asking_price" type="number" min="1" required>
+    </label>
+    <label class="full">Description (optional)
+      <input name="description">
+    </label>
+    <div class="full"><button>Submit for approval</button></div>
+  </form>
+</div>
+
+<h3>My listings</h3>
+<div class="table-wrap">
+<table>
+  <tr><th>ID</th><th>Device</th><th>Price</th><th>Status</th><th>Admin note</th></tr>
+  {% for l in mine %}
+  <tr>
+    <td>{{ l.listing_id }}</td>
+    <td>{{ l.brand }} {{ l.model_name }}</td>
+    <td>₹{{ l.asking_price }}</td>
+    <td><span class="badge {{ l.listing_status|lower }}">{{ l.listing_status }}</span></td>
+    <td>{{ l.rejection_reason or '' }}</td>
+  </tr>
+  {% else %}
+  <tr><td colspan="5" class="empty">You have not listed anything yet. Use the form above to add your first device.</td></tr>
+  {% endfor %}
+</table>
+</div>
+{% endblock %}

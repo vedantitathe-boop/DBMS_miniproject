@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>DBMS demonstration</h2>
+<p>These {{ results|length }} queries run live on the database. This page connects as
+<b>{{ account }}</b>, a read-only account, so it can only read data.</p>
+
+<form method="post" action="{{ url_for('demo_try_delete') }}" style="max-width:none; margin-bottom:24px">
+  <button class="light">Try a DELETE with the read-only account</button>
+</form>
+
+{% for r in results %}
+<div class="card">
+  <h3 style="margin-top:0">Query {{ r.number }}: {{ r.title }}</h3>
+  <p><b>Concept:</b> {{ r.concept }}</p>
+  <p>{{ r.explanation }}</p>
+  <pre class="sql">{{ r.sql }}</pre>
+  {% if r.error %}
+    <p class="flash" style="margin:0">Error: {{ r.error }}</p>
+  {% else %}
+  <div class="table-wrap">
+    <table>
+      <tr>{% for c in r.columns %}<th>{{ c }}</th>{% endfor %}</tr>
+      {% for row in r.rows %}
+      <tr>{% for v in row %}<td>{{ 'NULL' if v is none else v }}</td>{% endfor %}</tr>
+      {% else %}
+      <tr><td colspan="{{ r.columns|length }}" class="empty">No rows returned.</td></tr>
+      {% endfor %}
+    </table>
+  </div>
+  <p style="color:var(--muted); margin:8px 0 0">{{ r.rows|length }} row(s)</p>
+  {% endif %}
+</div>
+{% endfor %}
+{% endblock %}

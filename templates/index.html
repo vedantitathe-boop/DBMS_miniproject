@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+{% block content %}
+<section class="hero">
+  <h1>Give working electronics a second life.</h1>
+  <p>Buy and sell used and refurbished phones, TVs, fridges, washing machines and ACs. Items that cannot be saved go to e-waste recycling instead of the bin.</p>
+  <div class="actions">
+    {% if session.user_id %}
+      <a class="btn" href="{{ url_for('sell') }}">Sell a device</a>
+    {% else %}
+      <a class="btn" href="{{ url_for('register') }}">Create an account</a>
+      <a class="btn light" href="{{ url_for('login') }}">Log in</a>
+    {% endif %}
+  </div>
+</section>
+
+<div class="tiles">
+  <div class="card"><h3>Sell</h3><p>List a device with its condition and price. An admin checks it before it goes live.</p></div>
+  <div class="card"><h3>Buy</h3><p>Browse approved listings only, so every item you see has been reviewed.</p></div>
+  <div class="card"><h3>Recycle</h3><p>Report broken devices and parts, and follow them through the recycling process.</p></div>
+</div>
+{% endblock %}

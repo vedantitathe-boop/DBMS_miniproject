@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>Report e-waste</h2>
+<div class="card">
+  <form method="post" class="form-grid">
+    <label class="full">One of my devices (optional)
+      <select name="device_id">
+        <option value="">None, this is a separate item</option>
+        {% for d in devices %}
+          <option value="{{ d.device_id }}">{{ d.brand }} {{ d.model_name }}</option>
+        {% endfor %}
+      </select>
+    </label>
+    <label class="full">Item name (needed if no device is chosen)
+      <input name="item_name" placeholder="For example: old laptop battery">
+    </label>
+    <label>Type
+      <select name="item_type"><option>Whole Device</option><option>Component</option></select>
+    </label>
+    <label>Reason
+      <select name="reason"><option>Broken</option><option>Dead Battery</option><option>Unusable</option><option>Other</option></select>
+    </label>
+    <div class="full"><button>Report e-waste</button></div>
+  </form>
+</div>
+
+<h3>My reports</h3>
+<div class="table-wrap">
+<table>
+  <tr><th>ID</th><th>Item</th><th>Type</th><th>Reason</th><th>Status</th></tr>
+  {% for e in mine %}
+  <tr>
+    <td>{{ e.ewaste_id }}</td><td>{{ e.item }}</td><td>{{ e.item_type }}</td><td>{{ e.reason }}</td>
+    <td><span class="badge {{ e.recycling_status|lower|replace(' ', '') }}">{{ e.recycling_status }}</span></td>
+  </tr>
+  {% else %}
+  <tr><td colspan="5" class="empty">You have not reported any e-waste yet.</td></tr>
+  {% endfor %}
+</table>
+</div>
+
+{% if session.role == 'Admin' %}
+<h3>All e-waste records</h3>
+<div class="table-wrap">
+<table>
+  <tr><th>ID</th><th>Item</th><th>Reported by</th><th>Type</th><th>Reason</th><th>Recycling status</th></tr>
+  {% for e in everyone %}
+  <tr>
+    <td>{{ e.ewaste_id }}</td><td>{{ e.item }}</td><td>{{ e.reporter }}</td><td>{{ e.item_type }}</td><td>{{ e.reason }}</td>
+    <td>
+      <form method="post" action="{{ url_for('update_ewaste', ewaste_id=e.ewaste_id) }}" class="row-actions" style="max-width:none">
+        <select name="status">
+          {% for s in ['Submitted', 'Under Assessment', 'Sent for Recycling', 'Recycled'] %}
+            <option {% if s == e.recycling_status %}selected{% endif %}>{{ s }}</option>
+          {% endfor %}
+        </select>
+        <button class="light">Update</button>
+      </form>
+    </td>
+  </tr>
+  {% endfor %}
+</table>
+</div>
+{% endif %}
+{% endblock %}

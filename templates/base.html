@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ReCircuit</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;700&family=Public+Sans:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+  <nav>
+    <a class="brand" href="{{ url_for('index') }}">ReCircuit</a>
+    {% if session.user_id %}
+      <a href="{{ url_for('buy') }}">Buy</a>
+      <a href="{{ url_for('sell') }}">Sell</a>
+      <a href="{{ url_for('activity') }}">Activity{% if incoming_count %} <span class="count">{{ incoming_count }}</span>{% endif %}</a>
+      <a href="{{ url_for('ewaste') }}">E-waste</a>
+      <a href="{{ url_for('demo') }}">DBMS demo</a>
+      {% if session.role == 'Admin' %}<a href="{{ url_for('admin') }}">Admin</a>{% endif %}
+    {% endif %}
+    <span class="spacer"></span>
+    {% if session.user_id %}
+      <span class="who">{{ session.name }} ({{ session.role }})</span>
+      <a href="{{ url_for('logout') }}">Log out</a>
+    {% else %}
+      <a href="{{ url_for('login') }}">Log in</a>
+      <a href="{{ url_for('register') }}">Register</a>
+    {% endif %}
+  </nav>
+  {% for m in get_flashed_messages() %}<div class="flash">{{ m }}</div>{% endfor %}
+  <main>{% block content %}{% endblock %}</main>
+</body>
+</html>

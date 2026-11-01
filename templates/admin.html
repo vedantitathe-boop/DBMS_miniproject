@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>Listings waiting for approval</h2>
+<div class="table-wrap">
+<table>
+  <tr>
+    <th>ID</th><th>Device</th><th>Seller</th><th>Condition</th>
+    <th>Asking</th><th>Estimated</th><th>Price check</th><th>Decision</th>
+  </tr>
+  {% for p in pending %}
+  <tr>
+    <td>{{ p.listing_id }}</td>
+    <td>{{ p.brand }} {{ p.model_name }}</td>
+    <td>{{ p.seller }}</td>
+    <td>{{ p.device_condition }}, {{ p.years_used }} yrs</td>
+    <td>₹{{ p.asking_price }}</td>
+    <td>₹{{ p.estimated_value }}</td>
+    <td><span class="badge {{ p.price_flag|lower|replace(' ', '') }}">{{ p.price_flag }}</span></td>
+    <td>
+      <form method="post" action="{{ url_for('approve', listing_id=p.listing_id) }}" style="max-width:none;margin-bottom:8px">
+        <button>Approve</button>
+      </form>
+      <form method="post" action="{{ url_for('reject', listing_id=p.listing_id) }}" style="max-width:none">
+        <input name="reason" placeholder="Reason for rejecting" required>
+        <button class="light">Reject</button>
+      </form>
+    </td>
+  </tr>
+  {% else %}
+  <tr><td colspan="8" class="empty">Nothing is waiting for review.</td></tr>
+  {% endfor %}
+</table>
+</div>
+{% endblock %}
